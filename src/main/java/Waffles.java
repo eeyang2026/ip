@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 /**
  * The entry point for the Waffles chatbot.
  */
@@ -15,7 +17,18 @@ public class Waffles {
         System.out.println("Hello! I'm Waffles.");
         System.out.println("What can I do for you?");
         System.out.println(separator);
-        System.out.println("Bye. Hope to see you again soon!");
+
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String command = scanner.nextLine();
+            System.out.println("You typed: " + command);
+
+            if (command.equals("bye")) {
+                System.out.println("Until next time, Waffleeeeeeeees out");
+                break;
+            }
+        }
+
         System.out.println(separator);
     }
 }
