@@ -18,14 +18,25 @@ public class Waffles {
         System.out.println("What can I do for you?");
         System.out.println(separator);
 
+        String[] storedMessages = new String[100];
+        int messageCount = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
-            System.out.println("You typed: " + command);
 
             if (command.equals("bye")) {
                 System.out.println("Until next time, Waffleeeeeeeees out");
                 break;
+            } else if (command.equals("list")) {
+                for (int i = 0; i < messageCount; i++) {
+                    System.out.println((i + 1) + ". " + storedMessages[i]);
+                }
+            } else if (messageCount < storedMessages.length) {
+                storedMessages[messageCount] = command;
+                messageCount++;
+                System.out.println("Added: " + command);
+            } else {
+                System.out.println("Message storage is full.");
             }
         }
 
