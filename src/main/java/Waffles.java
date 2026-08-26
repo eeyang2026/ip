@@ -19,20 +19,56 @@ public class Waffles {
         System.out.println(separator);
 
         String[] storedMessages = new String[100];
+        boolean[] completedMessages = new boolean[storedMessages.length];
         int messageCount = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
+            String trimmedCommand = command.trim();
+            String[] commandParts = trimmedCommand.isEmpty()
+                    ? new String[0]
+                    : trimmedCommand.split("\\s+");
 
-            if (command.equals("bye")) {
+            if (trimmedCommand.equals("bye")) {
                 System.out.println("Until next time, Waffleeeeeeeees out");
                 break;
-            } else if (command.equals("list")) {
+            } else if (trimmedCommand.equals("list")) {
+                System.out.println(separator);
+                System.out.println("Here are the tasks in your list:");
                 for (int i = 0; i < messageCount; i++) {
-                    System.out.println((i + 1) + ". " + storedMessages[i]);
+                    String status = completedMessages[i] ? "[X]" : "[ ]";
+                    System.out.println((i + 1) + "." + status + " " + storedMessages[i]);
+                }
+                System.out.println(separator);
+            } else if (commandParts.length == 2
+                    && (commandParts[0].equals("mark") || commandParts[0].equals("unmark"))) {
+                try {
+                    int taskNumber = Integer.parseInt(commandParts[1]);
+                    int taskIndex = taskNumber - 1;
+
+                    if (taskIndex < 0 || taskIndex >= messageCount) {
+                        System.out.println("Task number must refer to a task in the list.");
+                        continue;
+                    }
+
+                    boolean shouldMarkAsDone = commandParts[0].equals("mark");
+                    completedMessages[taskIndex] = shouldMarkAsDone;
+
+                    System.out.println(separator);
+                    if (shouldMarkAsDone) {
+                        System.out.println("Nice! I've marked this task as done:");
+                    } else {
+                        System.out.println("OK, I've marked this task as not done yet:");
+                    }
+                    String status = shouldMarkAsDone ? "[X]" : "[ ]";
+                    System.out.println("  " + status + " " + storedMessages[taskIndex]);
+                    System.out.println(separator);
+                } catch (NumberFormatException exception) {
+                    System.out.println("Task number must be a valid number.");
                 }
             } else if (messageCount < storedMessages.length) {
                 storedMessages[messageCount] = command;
+                completedMessages[messageCount] = false;
                 messageCount++;
                 System.out.println("Added: " + command);
             } else {
