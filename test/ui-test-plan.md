@@ -29,6 +29,104 @@ Here are the tasks in your list:
 1.[T][ ] borrow book
 ```
 
+## Test case: reject empty and unknown input
+
+### Aim
+
+Verify that an empty todo and an unknown command get friendly errors and do not become tasks.
+
+### Inputs
+
+```text
+todo
+blah
+todo borrow book
+list
+bye
+```
+
+### Expected output
+
+```text
+Oops, a todo needs a description. Try `todo something to do`.
+Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or bye.
+Got it. I've added this task:
+Now you have 1 tasks in the list.
+1.[T][ ] borrow book
+```
+
+## Test case: reject malformed deadlines and events
+
+### Aim
+
+Verify that missing descriptions, markers, and date/time values are reported without adding invalid tasks.
+
+### Inputs
+
+```text
+deadline
+deadline report /by
+deadline report /by Friday
+event meeting
+event /from 2pm /to 4pm
+event meeting /from /to 4pm
+event meeting /from 2pm /to
+event meeting /from 2pm /to 4pm
+list
+bye
+```
+
+### Expected output
+
+```text
+Oops, a deadline needs a due time after `/by`, like `deadline report /by Friday`.
+Oops, a deadline needs something after `/by`.
+Got it. I've added this deadline:
+Now you have 1 tasks in the list.
+Oops, an event needs both `/from` and `/to`, like `event meeting /from 2pm /to 4pm`.
+Oops, an event needs a description before `/from`.
+Oops, an event needs something after `/from`.
+Oops, an event needs something after `/to`.
+Got it. I've added this event:
+Now you have 2 tasks in the list.
+1.[D][ ] report (by: Friday)
+2.[E][ ] meeting (from: 2pm | to: 4pm)
+```
+
+## Test case: reject invalid task numbers
+
+### Aim
+
+Verify that malformed and out-of-range mark commands do not change the task list.
+
+### Inputs
+
+```text
+todo keep list safe
+mark
+mark nope
+mark 2
+mark 1
+unmark 0
+unmark 1
+list
+bye
+```
+
+### Expected output
+
+```text
+Oops, use mark followed by a task number, like mark 1.
+Oops, that task number looks odd. Use a number, like mark 1.
+Oops, that task number is out of range. Pick a number from 1 to 1.
+Nice! I've marked this task as done:
+  [T][X] keep list safe
+Oops, that task number is out of range. Pick a number from 1 to 1.
+OK, I've marked this task as not done yet:
+  [T][ ] keep list safe
+1.[T][ ] keep list safe
+```
+
 ## Test case: add a deadline
 
 ### Aim

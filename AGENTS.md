@@ -36,6 +36,7 @@ After each code update:
 2. Invoke the project-specific `test-ui` skill to run the plan and inspect its console transcript.
 
 If a UI test fails, stop at the first failure and report the actual and expected output before continuing development.
+Keep positive and negative cases interleaved where practical, especially after adding commands or validation, so rejected input is checked not to alter the task list.
 
 ## Git
 

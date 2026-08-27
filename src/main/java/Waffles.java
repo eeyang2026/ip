@@ -31,20 +31,31 @@ public class Waffles {
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
 
-            if (command.equals("bye")) {
-                System.out.println("Until next time, Waffleeeeeeeees out");
-                break;
-            } else if (command.equals("list")) {
-                printTaskList(tasks, taskCount);
-            } else if (isMarkCommand(command)) {
-                handleMarkCommand(command, tasks, taskCount);
-            } else if (taskCount < tasks.length) {
-                Task newTask = createTask(command);
-                tasks[taskCount] = newTask;
-                taskCount++;
-                printTaskAdded(newTask, taskCount);
-            } else {
-                System.out.println("Message storage is full.");
+            try {
+                if (command.equals("bye")) {
+                    System.out.println("Until next time, Waffleeeeeeeees out");
+                    break;
+                } else if (command.equals("list")) {
+                    printTaskList(tasks, taskCount);
+                } else if (isMarkCommand(command)) {
+                    handleMarkCommand(command, tasks, taskCount);
+                } else if (isTaskCommand(command)) {
+                    if (taskCount >= tasks.length) {
+                        System.out.println("Message storage is full.");
+                        continue;
+                    }
+
+                    Task newTask = createTask(command);
+                    tasks[taskCount] = newTask;
+                    taskCount++;
+                    printTaskAdded(newTask, taskCount);
+                } else {
+                    throw new IllegalArgumentException(
+                            "I don't recognise that command. Try todo, deadline, event, list, "
+                                    + "mark, unmark, or bye.");
+                }
+            } catch (IllegalArgumentException exception) {
+                printError(exception.getMessage());
             }
         }
 
@@ -59,7 +70,19 @@ public class Waffles {
      */
     private static boolean isMarkCommand(String command) {
         String[] parts = command.split("\\s+");
-        return parts.length == 2 && (parts[0].equals("mark") || parts[0].equals("unmark"));
+        return parts.length > 0 && (parts[0].equals("mark") || parts[0].equals("unmark"));
+    }
+
+    /**
+     * Determines whether a command is intended to create a task.
+     *
+     * @param command the command entered by the user
+     * @return whether the command starts with a supported task type
+     */
+    private static boolean isTaskCommand(String command) {
+        return command.equals("todo") || command.startsWith("todo ")
+                || command.equals("deadline") || command.startsWith("deadline ")
+                || command.equals("event") || command.startsWith("event ");
     }
 
     /**
@@ -86,33 +109,40 @@ public class Waffles {
      */
     private static void handleMarkCommand(String command, Task[] tasks, int taskCount) {
         String[] parts = command.split("\\s+");
-        try {
-            int taskNumber = Integer.parseInt(parts[1]);
-            int taskIndex = taskNumber - 1;
-
-            if (taskIndex < 0 || taskIndex >= taskCount) {
-                System.out.println("Task number must refer to a task in the list.");
-                return;
-            }
-
-            boolean shouldMarkAsDone = parts[0].equals("mark");
-            if (shouldMarkAsDone) {
-                tasks[taskIndex].markAsDone();
-            } else {
-                tasks[taskIndex].markAsNotDone();
-            }
-
-            System.out.println(SEPARATOR);
-            if (shouldMarkAsDone) {
-                System.out.println("Nice! I've marked this task as done:");
-            } else {
-                System.out.println("OK, I've marked this task as not done yet:");
-            }
-            System.out.println("  " + tasks[taskIndex]);
-            System.out.println(SEPARATOR);
-        } catch (NumberFormatException exception) {
-            System.out.println("Task number must be a valid number.");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException(
+                    "use " + parts[0] + " followed by a task number, like " + parts[0] + " 1.");
         }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(
+                    "that task number looks odd. Use a number, like " + parts[0] + " 1.");
+        }
+
+        int taskIndex = taskNumber - 1;
+        if (taskIndex < 0 || taskIndex >= taskCount) {
+            throw new IllegalArgumentException(
+                    "that task number is out of range. Pick a number from 1 to " + taskCount + ".");
+        }
+
+        boolean shouldMarkAsDone = parts[0].equals("mark");
+        if (shouldMarkAsDone) {
+            tasks[taskIndex].markAsDone();
+        } else {
+            tasks[taskIndex].markAsNotDone();
+        }
+
+        System.out.println(SEPARATOR);
+        if (shouldMarkAsDone) {
+            System.out.println("Nice! I've marked this task as done:");
+        } else {
+            System.out.println("OK, I've marked this task as not done yet:");
+        }
+        System.out.println("  " + tasks[taskIndex]);
+        System.out.println(SEPARATOR);
     }
 
     /**
@@ -122,20 +152,25 @@ public class Waffles {
      * @return a todo, deadline, or event task
      */
     private static Task createTask(String command) {
-        if (command.startsWith("todo ")) {
-            return new Todo(command.substring("todo ".length()).trim());
+        if (command.equals("todo") || command.startsWith("todo ")) {
+            String description = command.substring("todo".length()).trim();
+            if (description.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "a todo needs a description. Try `todo something to do`.");
+            }
+            return new Todo(description);
         }
 
-        if (command.startsWith("deadline ")) {
+        if (command.equals("deadline") || command.startsWith("deadline ")) {
             return createDeadline(command);
         }
 
-        if (command.startsWith("event ")) {
+        if (command.equals("event") || command.startsWith("event ")) {
             return createEvent(command);
         }
 
-        // Preserve the earlier behavior where ordinary input is stored as a task.
-        return new Todo(command);
+        throw new IllegalArgumentException(
+                "I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or bye.");
     }
 
     /**
@@ -145,14 +180,21 @@ public class Waffles {
      * @return the parsed deadline
      */
     private static Deadline createDeadline(String command) {
-        String content = command.substring("deadline ".length()).trim();
+        String content = command.substring("deadline".length()).trim();
         int byMarker = content.indexOf("/by");
         if (byMarker < 0) {
-            return new Deadline(content, "");
+            throw new IllegalArgumentException(
+                    "a deadline needs a due time after `/by`, like `deadline report /by Friday`.");
         }
 
         String description = content.substring(0, byMarker).trim();
         String by = content.substring(byMarker + "/by".length()).trim();
+        if (description.isEmpty()) {
+            throw new IllegalArgumentException("a deadline needs a description before `/by`.");
+        }
+        if (by.isEmpty()) {
+            throw new IllegalArgumentException("a deadline needs something after `/by`.");
+        }
         return new Deadline(description, by);
     }
 
@@ -163,17 +205,38 @@ public class Waffles {
      * @return the parsed event
      */
     private static Event createEvent(String command) {
-        String content = command.substring("event ".length()).trim();
+        String content = command.substring("event".length()).trim();
         int fromMarker = content.indexOf("/from");
         int toMarker = content.indexOf("/to", fromMarker + 1);
         if (fromMarker < 0 || toMarker < 0) {
-            return new Event(content, "", "");
+            throw new IllegalArgumentException(
+                    "an event needs both `/from` and `/to`, like `event meeting /from 2pm /to 4pm`.");
         }
 
         String description = content.substring(0, fromMarker).trim();
         String from = content.substring(fromMarker + "/from".length(), toMarker).trim();
         String to = content.substring(toMarker + "/to".length()).trim();
+        if (description.isEmpty()) {
+            throw new IllegalArgumentException("an event needs a description before `/from`.");
+        }
+        if (from.isEmpty()) {
+            throw new IllegalArgumentException("an event needs something after `/from`.");
+        }
+        if (to.isEmpty()) {
+            throw new IllegalArgumentException("an event needs something after `/to`.");
+        }
         return new Event(description, from, to);
+    }
+
+    /**
+     * Prints an informal error message without changing the task list.
+     *
+     * @param message the specific problem and correction hint
+     */
+    private static void printError(String message) {
+        System.out.println(SEPARATOR);
+        System.out.println("Oops, " + message);
+        System.out.println(SEPARATOR);
     }
 
     /**
