@@ -63,4 +63,14 @@ public class Task {
     public String isDoneSymbol() {
         return isDone ? "[X]" : "[ ]";
     }
+
+    /**
+     * Returns the task in the format used by the task list.
+     *
+     * @return the status marker followed by the task description
+     */
+    @Override
+    public String toString() {
+        return isDoneSymbol() + " " + description;
+    }
 }
