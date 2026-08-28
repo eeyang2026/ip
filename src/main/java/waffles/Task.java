@@ -1,3 +1,5 @@
+package waffles;
+
 /**
  * Represents a task in the Waffles task list.
  */

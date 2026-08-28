@@ -1,3 +1,5 @@
+package waffles;
+
 /**
  * Represents a task without an associated date or time.
  */

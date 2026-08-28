@@ -1,3 +1,5 @@
+package waffles;
+
 /**
  * Represents the completion status of a task.
  */
