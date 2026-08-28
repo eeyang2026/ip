@@ -59,11 +59,11 @@ Now you have 1 tasks in the list.
 1.[T][ ] borrow book
 ```
 
-## Test case: reject malformed deadlines and events
+## Test case: reject malformed and invalid dates
 
 ### Aim
 
-Verify that missing descriptions, markers, and date/time values are reported without adding invalid tasks.
+Verify that missing descriptions, markers, and invalid ISO dates are reported without adding invalid tasks.
 
 ### Inputs
 
@@ -71,12 +71,14 @@ Verify that missing descriptions, markers, and date/time values are reported wit
 delete 1
 deadline
 deadline report /by
-deadline report /by Friday
+deadline report /by 2019-02-30
+deadline report /by 2019-02-28
 event meeting
-event /from 2pm /to 4pm
-event meeting /from /to 4pm
-event meeting /from 2pm /to
-event meeting /from 2pm /to 4pm
+event /from 2019-03-01 /to 2019-03-02
+event meeting /from /to 2019-03-02
+event meeting /from 2019-02-28 /to
+event meeting /from 2019-02-30 /to 2019-03-01
+event meeting /from 2019-02-28 /to 2019-03-01
 list
 bye
 ```
@@ -86,16 +88,18 @@ bye
 ```text
 Oops, a deadline needs a due time after `/by`, like `deadline report /by Friday`.
 Oops, a deadline needs something after `/by`.
+Oops, a deadline date must use yyyy-MM-dd, like 2019-10-15.
 Got it. I've added this deadline:
 Now you have 1 tasks in the list.
 Oops, an event needs both `/from` and `/to`, like `event meeting /from 2pm /to 4pm`.
 Oops, an event needs a description before `/from`.
 Oops, an event needs something after `/from`.
 Oops, an event needs something after `/to`.
+Oops, an event date must use yyyy-MM-dd, like 2019-10-15.
 Got it. I've added this event:
 Now you have 2 tasks in the list.
-1.[D][ ] report (by: Friday)
-2.[E][ ] meeting (from: 2pm | to: 4pm)
+1.[D][ ] report (by: Feb 28 2019)
+2.[E][ ] meeting (from: Feb 28 2019 | to: Mar 01 2019)
 ```
 
 ## Test case: reject invalid mark and delete task numbers
@@ -150,7 +154,7 @@ Verify that a deadline preserves its description and `/by` value in the confirma
 
 ```text
 delete 1
-deadline return book /by Sunday
+deadline return book /by 2019-06-06
 list
 bye
 ```
@@ -159,9 +163,9 @@ bye
 
 ```text
 Got it. I've added this deadline:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Jun 06 2019)
 Now you have 1 tasks in the list.
-1.[D][ ] return book (by: Sunday)
+1.[D][ ] return book (by: Jun 06 2019)
 ```
 
 ## Test case: add an event
@@ -174,7 +178,7 @@ Verify that an event preserves both time values and displays the divider between
 
 ```text
 delete 1
-event project meeting /from Mon 2pm /to 4pm
+event project meeting /from 2019-08-06 /to 2019-08-07
 list
 bye
 ```
@@ -183,8 +187,8 @@ bye
 
 ```text
 Got it. I've added this event:
-  [E][ ] project meeting (from: Mon 2pm | to: 4pm)
-1.[E][ ] project meeting (from: Mon 2pm | to: 4pm)
+  [E][ ] project meeting (from: Aug 06 2019 | to: Aug 07 2019)
+1.[E][ ] project meeting (from: Aug 06 2019 | to: Aug 07 2019)
 ```
 
 ## Test case: mark and unmark typed tasks
@@ -225,8 +229,8 @@ Verify that a typed task can be deleted, the task count decreases, and later tas
 ```text
 delete 1
 todo read book
-deadline return book /by June 6th
-event project meeting /from Aug 6th 2pm /to 4pm
+deadline return book /by 2019-06-06
+event project meeting /from 2019-08-06 /to 2019-08-07
 todo join sports club
 todo borrow book
 mark 1
@@ -240,10 +244,10 @@ bye
 
 ```text
 Noted. I've removed this task:
-  [E][ ] project meeting (from: Aug 6th 2pm | to: 4pm)
+  [E][ ] project meeting (from: Aug 06 2019 | to: Aug 07 2019)
 Now you have 4 tasks in the list.
 1.[T][X] read book
-2.[D][X] return book (by: June 6th)
+2.[D][X] return book (by: Jun 06 2019)
 3.[T][ ] join sports club
 4.[T][ ] borrow book
 ```

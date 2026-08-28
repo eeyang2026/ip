@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -104,12 +106,12 @@ public final class TaskStorage {
         if (task instanceof Event event) {
             type = "E";
             fields.add(escape(event.getDescription()))
-                    .add(escape(event.getFrom()))
-                    .add(escape(event.getTo()));
+                    .add(escape(event.getFrom().toString()))
+                    .add(escape(event.getTo().toString()));
         } else if (task instanceof Deadline deadline) {
             type = "D";
             fields.add(escape(deadline.getDescription()))
-                    .add(escape(deadline.getBy()));
+                    .add(escape(deadline.getBy().toString()));
         } else {
             type = "T";
             fields.add(escape(task.getDescription()));
@@ -136,14 +138,19 @@ public final class TaskStorage {
         }
 
         Task task;
-        if (type.equals("T") && fields.size() == 3) {
-            task = new Todo(description);
-        } else if (type.equals("D") && fields.size() == 4 && !fields.get(3).isBlank()) {
-            task = new Deadline(description, fields.get(3));
-        } else if (type.equals("E") && fields.size() == 5
-                && !fields.get(3).isBlank() && !fields.get(4).isBlank()) {
-            task = new Event(description, fields.get(3), fields.get(4));
-        } else {
+        try {
+            if (type.equals("T") && fields.size() == 3) {
+                task = new Todo(description);
+            } else if (type.equals("D") && fields.size() == 4 && !fields.get(3).isBlank()) {
+                task = new Deadline(description, LocalDate.parse(fields.get(3)));
+            } else if (type.equals("E") && fields.size() == 5
+                    && !fields.get(3).isBlank() && !fields.get(4).isBlank()) {
+                task = new Event(description, LocalDate.parse(fields.get(3)),
+                        LocalDate.parse(fields.get(4)));
+            } else {
+                return null;
+            }
+        } catch (DateTimeParseException exception) {
             return null;
         }
 

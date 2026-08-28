@@ -1,27 +1,41 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * Represents a task that must be completed by a specified date or time.
  */
 public class Deadline extends Task {
-    /** The date or time by which the task should be completed. */
-    protected String by;
+    /** The date by which the task should be completed. */
+    protected LocalDate by;
 
     /**
      * Creates a new deadline task.
      *
      * @param description the text describing the task
-     * @param by the date or time by which the task should be completed
+     * @param by the date by which the task should be completed
      */
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
     }
 
     /**
-     * Returns the date or time by which this task should be completed.
+     * Creates a deadline from an ISO-8601 date such as {@code 2019-10-15}.
+     *
+     * @param description the text describing the task
+     * @param by the ISO-8601 date by which the task should be completed
+     */
+    public Deadline(String description, String by) {
+        this(description, LocalDate.parse(by));
+    }
+
+    /**
+     * Returns the date by which this task should be completed.
      *
      * @return the deadline value
      */
-    public String getBy() {
+    public LocalDate getBy() {
         return by;
     }
 
@@ -32,6 +46,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        String formattedDate = by.format(DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH));
+        return "[D]" + super.toString() + " (by: " + formattedDate + ")";
     }
 }

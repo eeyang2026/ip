@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 /**
  * The entry point for the Waffles chatbot.
@@ -230,14 +232,14 @@ public class Waffles {
         }
 
         String description = content.substring(0, byMarker).trim();
-        String by = content.substring(byMarker + "/by".length()).trim();
+        String byText = content.substring(byMarker + "/by".length()).trim();
         if (description.isEmpty()) {
             throw new IllegalArgumentException("a deadline needs a description before `/by`.");
         }
-        if (by.isEmpty()) {
+        if (byText.isEmpty()) {
             throw new IllegalArgumentException("a deadline needs something after `/by`.");
         }
-        return new Deadline(description, by);
+        return new Deadline(description, parseDate(byText, "deadline"));
     }
 
     /**
@@ -256,18 +258,35 @@ public class Waffles {
         }
 
         String description = content.substring(0, fromMarker).trim();
-        String from = content.substring(fromMarker + "/from".length(), toMarker).trim();
-        String to = content.substring(toMarker + "/to".length()).trim();
+        String fromText = content.substring(fromMarker + "/from".length(), toMarker).trim();
+        String toText = content.substring(toMarker + "/to".length()).trim();
         if (description.isEmpty()) {
             throw new IllegalArgumentException("an event needs a description before `/from`.");
         }
-        if (from.isEmpty()) {
+        if (fromText.isEmpty()) {
             throw new IllegalArgumentException("an event needs something after `/from`.");
         }
-        if (to.isEmpty()) {
+        if (toText.isEmpty()) {
             throw new IllegalArgumentException("an event needs something after `/to`.");
         }
-        return new Event(description, from, to);
+        return new Event(description, parseDate(fromText, "event"), parseDate(toText, "event"));
+    }
+
+    /**
+     * Parses an ISO-8601 date entered in a command.
+     *
+     * @param value the date text entered by the user
+     * @param taskType the task type used in the error message
+     * @return the parsed date
+     */
+    private static LocalDate parseDate(String value, String taskType) {
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException exception) {
+            String article = taskType.equals("event") ? "an " : "a ";
+            throw new IllegalArgumentException(
+                    article + taskType + " date must use yyyy-MM-dd, like 2019-10-15.");
+        }
     }
 
     /**
