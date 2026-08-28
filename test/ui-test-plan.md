@@ -49,7 +49,7 @@ bye
 
 ```text
 Oops, a todo needs a description. Try `todo something to do`.
-Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or bye.
+Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
 Got it. I've added this task:
 Now you have 1 tasks in the list.
 1.[T][ ] borrow book
@@ -93,11 +93,11 @@ Now you have 2 tasks in the list.
 2.[E][ ] meeting (from: 2pm | to: 4pm)
 ```
 
-## Test case: reject invalid task numbers
+## Test case: reject invalid mark and delete task numbers
 
 ### Aim
 
-Verify that malformed and out-of-range mark commands do not change the task list.
+Verify that malformed and out-of-range mark and delete commands do not change the task list.
 
 ### Inputs
 
@@ -109,6 +109,9 @@ mark 2
 mark 1
 unmark 0
 unmark 1
+delete
+delete nope
+delete 2
 list
 bye
 ```
@@ -124,6 +127,9 @@ Nice! I've marked this task as done:
 Oops, that task number is out of range. Pick a number from 1 to 1.
 OK, I've marked this task as not done yet:
   [T][ ] keep list safe
+Oops, use delete followed by a task number, like delete 1.
+Oops, that task number looks odd. Use a number, like delete 1.
+Oops, that task number is out of range. Pick a number from 1 to 1.
 1.[T][ ] keep list safe
 ```
 
@@ -196,4 +202,37 @@ Nice! I've marked this task as done:
 OK, I've marked this task as not done yet:
   [T][ ] clean room
 1.[T][ ] clean room
+```
+
+## Test case: delete a task and renumber the list
+
+### Aim
+
+Verify that a typed task can be deleted, the task count decreases, and later tasks move up in the list.
+
+### Inputs
+
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+todo join sports club
+todo borrow book
+mark 1
+mark 2
+delete 3
+list
+bye
+```
+
+### Expected output
+
+```text
+Noted. I've removed this task:
+  [E][ ] project meeting (from: Aug 6th 2pm | to: 4pm)
+Now you have 4 tasks in the list.
+1.[T][X] read book
+2.[D][X] return book (by: June 6th)
+3.[T][ ] join sports club
+4.[T][ ] borrow book
 ```

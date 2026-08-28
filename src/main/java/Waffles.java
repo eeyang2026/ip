@@ -1,10 +1,10 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
  * The entry point for the Waffles chatbot.
  */
 public class Waffles {
-    private static final int MAX_TASKS = 100;
     private static final String SEPARATOR = "____________________________________________________________";
 
     /**
@@ -25,8 +25,7 @@ public class Waffles {
         System.out.println("What can I do for you?");
         System.out.println(SEPARATOR);
 
-        Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
@@ -36,23 +35,19 @@ public class Waffles {
                     System.out.println("Until next time, Waffleeeeeeeees out");
                     break;
                 } else if (command.equals("list")) {
-                    printTaskList(tasks, taskCount);
+                    printTaskList(tasks);
                 } else if (isMarkCommand(command)) {
-                    handleMarkCommand(command, tasks, taskCount);
+                    handleMarkCommand(command, tasks);
+                } else if (isDeleteCommand(command)) {
+                    handleDeleteCommand(command, tasks);
                 } else if (isTaskCommand(command)) {
-                    if (taskCount >= tasks.length) {
-                        System.out.println("Message storage is full.");
-                        continue;
-                    }
-
                     Task newTask = createTask(command);
-                    tasks[taskCount] = newTask;
-                    taskCount++;
-                    printTaskAdded(newTask, taskCount);
+                    tasks.add(newTask);
+                    printTaskAdded(newTask, tasks.size());
                 } else {
                     throw new IllegalArgumentException(
                             "I don't recognise that command. Try todo, deadline, event, list, "
-                                    + "mark, unmark, or bye.");
+                                    + "mark, unmark, delete, or bye.");
                 }
             } catch (IllegalArgumentException exception) {
                 printError(exception.getMessage());
@@ -74,6 +69,17 @@ public class Waffles {
     }
 
     /**
+     * Determines whether a command deletes a task.
+     *
+     * @param command the command entered by the user
+     * @return whether the command starts with {@code delete}
+     */
+    private static boolean isDeleteCommand(String command) {
+        String[] parts = command.split("\\s+");
+        return parts.length > 0 && parts[0].equals("delete");
+    }
+
+    /**
      * Determines whether a command is intended to create a task.
      *
      * @param command the command entered by the user
@@ -89,13 +95,12 @@ public class Waffles {
      * Prints all tasks and their current type and completion status.
      *
      * @param tasks the polymorphic task storage
-     * @param taskCount the number of tasks currently stored
      */
-    private static void printTaskList(Task[] tasks, int taskCount) {
+    private static void printTaskList(ArrayList<Task> tasks) {
         System.out.println(SEPARATOR);
         System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println((i + 1) + "." + tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println((i + 1) + "." + tasks.get(i));
         }
         System.out.println(SEPARATOR);
     }
@@ -105,9 +110,8 @@ public class Waffles {
      *
      * @param command the mark or unmark command
      * @param tasks the polymorphic task storage
-     * @param taskCount the number of tasks currently stored
      */
-    private static void handleMarkCommand(String command, Task[] tasks, int taskCount) {
+    private static void handleMarkCommand(String command, ArrayList<Task> tasks) {
         String[] parts = command.split("\\s+");
         if (parts.length != 2) {
             throw new IllegalArgumentException(
@@ -123,16 +127,16 @@ public class Waffles {
         }
 
         int taskIndex = taskNumber - 1;
-        if (taskIndex < 0 || taskIndex >= taskCount) {
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
             throw new IllegalArgumentException(
-                    "that task number is out of range. Pick a number from 1 to " + taskCount + ".");
+                    "that task number is out of range. Pick a number from 1 to " + tasks.size() + ".");
         }
 
         boolean shouldMarkAsDone = parts[0].equals("mark");
         if (shouldMarkAsDone) {
-            tasks[taskIndex].markAsDone();
+            tasks.get(taskIndex).markAsDone();
         } else {
-            tasks[taskIndex].markAsNotDone();
+            tasks.get(taskIndex).markAsNotDone();
         }
 
         System.out.println(SEPARATOR);
@@ -141,7 +145,42 @@ public class Waffles {
         } else {
             System.out.println("OK, I've marked this task as not done yet:");
         }
-        System.out.println("  " + tasks[taskIndex]);
+        System.out.println("  " + tasks.get(taskIndex));
+        System.out.println(SEPARATOR);
+    }
+
+    /**
+     * Deletes a task selected by its one-based list number.
+     *
+     * @param command the delete command
+     * @param tasks the polymorphic task storage
+     */
+    private static void handleDeleteCommand(String command, ArrayList<Task> tasks) {
+        String[] parts = command.split("\\s+");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException(
+                    "use delete followed by a task number, like delete 1.");
+        }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(
+                    "that task number looks odd. Use a number, like delete 1.");
+        }
+
+        int taskIndex = taskNumber - 1;
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            throw new IllegalArgumentException(
+                    "that task number is out of range. Pick a number from 1 to " + tasks.size() + ".");
+        }
+
+        Task removedTask = tasks.remove(taskIndex);
+        System.out.println(SEPARATOR);
+        System.out.println("Noted. I've removed this task:");
+        System.out.println("  " + removedTask);
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(SEPARATOR);
     }
 
@@ -170,7 +209,7 @@ public class Waffles {
         }
 
         throw new IllegalArgumentException(
-                "I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or bye.");
+                "I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.");
     }
 
     /**
