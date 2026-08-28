@@ -49,6 +49,13 @@ jar {
 
 shadowJar {
     archiveFileName = 'duke.jar'
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
 }
 
 run {
