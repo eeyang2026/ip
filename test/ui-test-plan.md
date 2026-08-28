@@ -1,9 +1,9 @@
 # Waffles UI test plan
 
-The test runner executes one fresh Waffles session for each test case. Expected-output blocks list complete output lines that must appear in order; the startup banner and divider-only lines are intentionally omitted.
+The test runner starts one fresh Waffles process for each test case. The cases use one shared test data file so the second case verifies loading from the previous process; each later case removes the tasks left by the preceding case before testing its own behavior. Expected-output blocks list complete output lines that must appear in order; the startup banner and divider-only lines are intentionally omitted.
 
-- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Todo.java src/main/java/Waffles.java`
-- Run command: `java -cp _temp/test-ui-classes Waffles`
+- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Todo.java src/main/java/TaskStorage.java src/main/java/Waffles.java`
+- Run command: `java -Dwaffles.data.file=_temp/ui-test-data/waffles.txt -cp _temp/test-ui-classes Waffles`
 
 ## Test case: add and list a todo
 
@@ -38,6 +38,8 @@ Verify that an empty todo and an unknown command get friendly errors and do not 
 ### Inputs
 
 ```text
+list
+delete 1
 todo
 blah
 todo borrow book
@@ -48,6 +50,8 @@ bye
 ### Expected output
 
 ```text
+Here are the tasks in your list:
+1.[T][ ] borrow book
 Oops, a todo needs a description. Try `todo something to do`.
 Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
 Got it. I've added this task:
@@ -64,6 +68,7 @@ Verify that missing descriptions, markers, and date/time values are reported wit
 ### Inputs
 
 ```text
+delete 1
 deadline
 deadline report /by
 deadline report /by Friday
@@ -102,6 +107,8 @@ Verify that malformed and out-of-range mark and delete commands do not change th
 ### Inputs
 
 ```text
+delete 1
+delete 1
 todo keep list safe
 mark
 mark nope
@@ -142,6 +149,7 @@ Verify that a deadline preserves its description and `/by` value in the confirma
 ### Inputs
 
 ```text
+delete 1
 deadline return book /by Sunday
 list
 bye
@@ -165,6 +173,7 @@ Verify that an event preserves both time values and displays the divider between
 ### Inputs
 
 ```text
+delete 1
 event project meeting /from Mon 2pm /to 4pm
 list
 bye
@@ -187,6 +196,7 @@ Verify that completion status is managed through the shared `Task` behavior for 
 ### Inputs
 
 ```text
+delete 1
 todo clean room
 mark 1
 unmark 1
@@ -213,6 +223,7 @@ Verify that a typed task can be deleted, the task count decreases, and later tas
 ### Inputs
 
 ```text
+delete 1
 todo read book
 deadline return book /by June 6th
 event project meeting /from Aug 6th 2pm /to 4pm

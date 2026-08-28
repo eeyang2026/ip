@@ -25,7 +25,7 @@ public class Waffles {
         System.out.println("What can I do for you?");
         System.out.println(SEPARATOR);
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<Task> tasks = TaskStorage.loadTasks();
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
@@ -43,6 +43,7 @@ public class Waffles {
                 } else if (isTaskCommand(command)) {
                     Task newTask = createTask(command);
                     tasks.add(newTask);
+                    TaskStorage.saveTasks(tasks);
                     printTaskAdded(newTask, tasks.size());
                 } else {
                     throw new IllegalArgumentException(
@@ -138,6 +139,7 @@ public class Waffles {
         } else {
             tasks.get(taskIndex).markAsNotDone();
         }
+        TaskStorage.saveTasks(tasks);
 
         System.out.println(SEPARATOR);
         if (shouldMarkAsDone) {
@@ -177,6 +179,7 @@ public class Waffles {
         }
 
         Task removedTask = tasks.remove(taskIndex);
+        TaskStorage.saveTasks(tasks);
         System.out.println(SEPARATOR);
         System.out.println("Noted. I've removed this task:");
         System.out.println("  " + removedTask);
