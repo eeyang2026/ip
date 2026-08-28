@@ -1,3 +1,5 @@
+package waffles;
+
 import java.util.Scanner;
 
 /**

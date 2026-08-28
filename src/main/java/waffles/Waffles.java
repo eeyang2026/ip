@@ -1,3 +1,5 @@
+package waffles;
+
 /**
  * The entry point and coordinator for the Waffles chatbot.
  */
