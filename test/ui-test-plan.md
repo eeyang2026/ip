@@ -2,7 +2,7 @@
 
 The test runner starts one fresh Waffles process for each test case. The cases use one shared test data file so the second case verifies loading from the previous process; each later case removes the tasks left by the preceding case before testing its own behavior. Expected-output blocks list complete output lines that must appear in order; the startup banner and divider-only lines are intentionally omitted.
 
-- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Todo.java src/main/java/TaskStorage.java src/main/java/Waffles.java`
+- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Todo.java src/main/java/Storage.java src/main/java/TaskList.java src/main/java/Parser.java src/main/java/Ui.java src/main/java/Waffles.java`
 - Run command: `java -Dwaffles.data.file=_temp/ui-test-data/waffles.txt -cp _temp/test-ui-classes Waffles`
 
 ## Test case: add and list a todo
