@@ -28,6 +28,15 @@ public class Task {
     }
 
     /**
+     * Returns whether this task has been completed.
+     *
+     * @return {@code true} when this task is done
+     */
+    public boolean isDone() {
+        return status == TaskStatus.DONE;
+    }
+
+    /**
      * Updates the task description.
      *
      * @param description the new task description
