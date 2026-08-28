@@ -11,34 +11,45 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * Reads and writes Waffles tasks in a small, human-readable text file.
- *
- * <p>Each record uses the format {@code TYPE|STATUS|VALUE...}. A backslash
- * escapes a backslash or a pipe inside a task value.</p>
+ * Loads tasks from disk and saves tasks to disk.
  */
-public final class TaskStorage {
+public class Storage {
     /** The system property used by tests or alternative launchers to choose a file. */
     private static final String DATA_FILE_PROPERTY = "waffles.data.file";
 
-    /** The default relative location of the saved task list. */
+    /** The default data file, relative to the application's working directory. */
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "waffles.txt");
 
-    private TaskStorage() {
-        // Utility class; do not instantiate.
+    /** The file used for this storage instance. */
+    private final Path dataFile;
+
+    /** Creates storage using the configured or default relative data file. */
+    public Storage() {
+        String configuredPath = System.getProperty(DATA_FILE_PROPERTY);
+        dataFile = configuredPath == null || configuredPath.isBlank()
+                ? DEFAULT_DATA_FILE
+                : Path.of(configuredPath);
+    }
+
+    /**
+     * Creates storage at a specified path.
+     *
+     * @param filePath the path of the task data file
+     */
+    public Storage(String filePath) {
+        dataFile = Path.of(filePath);
     }
 
     /**
      * Loads all valid tasks from the data file.
      *
-     * <p>A missing file or folder is treated as an empty task list. Malformed
-     * records are ignored so one corrupted line does not prevent Waffles from
-     * starting or loading the other valid tasks.</p>
+     * <p>A missing file or folder is treated as an empty list. Corrupted
+     * records are skipped so valid tasks can still be recovered.</p>
      *
      * @return the tasks recovered from disk
      */
-    public static ArrayList<Task> loadTasks() {
+    public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
-        Path dataFile = getDataFile();
         if (!Files.exists(dataFile)) {
             return tasks;
         }
@@ -58,12 +69,11 @@ public final class TaskStorage {
     }
 
     /**
-     * Saves the current task list, creating its parent folder when necessary.
+     * Saves the supplied tasks, creating the parent folder if necessary.
      *
      * @param tasks the tasks to save
      */
-    public static void saveTasks(List<Task> tasks) {
-        Path dataFile = getDataFile();
+    public void saveTasks(List<Task> tasks) {
         try {
             Path parent = dataFile.getParent();
             if (parent != null) {
@@ -81,26 +91,8 @@ public final class TaskStorage {
         }
     }
 
-    /**
-     * Returns the configured data path, or the default path relative to the
-     * project directory when no override was supplied.
-     *
-     * @return the data file path
-     */
-    private static Path getDataFile() {
-        String configuredPath = System.getProperty(DATA_FILE_PROPERTY);
-        return configuredPath == null || configuredPath.isBlank()
-                ? DEFAULT_DATA_FILE
-                : Path.of(configuredPath);
-    }
-
-    /**
-     * Converts a task into its on-disk record.
-     *
-     * @param task the task to format
-     * @return the serialized task
-     */
-    private static String formatTask(Task task) {
+    /** Converts a task to its escaped, pipe-separated record. */
+    private String formatTask(Task task) {
         String type;
         StringJoiner fields = new StringJoiner("|");
         if (task instanceof Event event) {
@@ -119,13 +111,8 @@ public final class TaskStorage {
         return type + "|" + (task.isDone() ? "1" : "0") + "|" + fields;
     }
 
-    /**
-     * Parses one saved record, returning {@code null} for corrupted input.
-     *
-     * @param line the record to parse
-     * @return the parsed task, or {@code null} when the record is invalid
-     */
-    private static Task parseTask(String line) {
+    /** Parses one saved record, returning null when it is corrupted. */
+    private Task parseTask(String line) {
         List<String> fields = splitRecord(line);
         if (fields.size() < 3 || !fields.get(1).equals("0") && !fields.get(1).equals("1")) {
             return null;
@@ -160,13 +147,8 @@ public final class TaskStorage {
         return task;
     }
 
-    /**
-     * Splits a record while preserving escaped pipe characters in values.
-     *
-     * @param line the record to split
-     * @return the decoded fields
-     */
-    private static List<String> splitRecord(String line) {
+    /** Splits one record while preserving escaped pipe characters. */
+    private List<String> splitRecord(String line) {
         ArrayList<String> fields = new ArrayList<>();
         StringBuilder field = new StringBuilder();
         boolean escaped = false;
@@ -195,13 +177,8 @@ public final class TaskStorage {
         return fields;
     }
 
-    /**
-     * Escapes characters that have a special meaning in the record format.
-     *
-     * @param value the task value to escape
-     * @return the escaped value
-     */
-    private static String escape(String value) {
+    /** Escapes the special characters used by the record format. */
+    private String escape(String value) {
         return value.replace("\\", "\\\\").replace("|", "\\|");
     }
 }
