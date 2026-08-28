@@ -39,6 +39,9 @@ public class Waffles {
                     handleMarkCommand(command);
                 } else if (parser.isDeleteCommand(command)) {
                     handleDeleteCommand(command);
+                } else if (parser.isFindCommand(command)) {
+                    String keyword = parser.parseFindKeyword(command);
+                    ui.showMatchingTasks(tasks.findTasks(keyword));
                 } else if (parser.isTaskCommand(command)) {
                     Task newTask = parser.parseTask(command);
                     tasks.addTask(newTask);
@@ -47,7 +50,7 @@ public class Waffles {
                 } else {
                     throw new IllegalArgumentException(
                             "I don't recognise that command. Try todo, deadline, event, list, "
-                                    + "mark, unmark, delete, or bye.");
+                                    + "mark, unmark, delete, find, or bye.");
                 }
             } catch (IllegalArgumentException exception) {
                 ui.showError(exception.getMessage());

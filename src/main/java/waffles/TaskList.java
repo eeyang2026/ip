@@ -3,6 +3,7 @@ package waffles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Owns the ordered collection of tasks and its basic list operations.
@@ -70,5 +71,19 @@ public class TaskList {
      */
     public List<Task> asList() {
         return Collections.unmodifiableList(tasks);
+    }
+
+    /**
+     * Finds tasks whose descriptions contain the supplied keyword.
+     * The search ignores letter case and preserves task-list order.
+     *
+     * @param keyword the text to search for
+     * @return matching tasks in their original order
+     */
+    public List<Task> findTasks(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase(Locale.ROOT).contains(normalizedKeyword))
+                .toList();
     }
 }

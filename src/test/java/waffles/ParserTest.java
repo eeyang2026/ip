@@ -49,4 +49,11 @@ class ParserTest {
         assertEquals(3, parser.parseTaskNumber("delete 3"));
         assertThrows(IllegalArgumentException.class, () -> parser.parseTaskNumber("mark nope"));
     }
+
+    /** Verifies find commands preserve the requested keyword and reject an empty one. */
+    @Test
+    void parseFindKeyword_validAndEmptyInputs_behaveAsExpected() {
+        assertEquals("Book", parser.parseFindKeyword("find Book"));
+        assertThrows(IllegalArgumentException.class, () -> parser.parseFindKeyword("find"));
+    }
 }

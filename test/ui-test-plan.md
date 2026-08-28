@@ -53,7 +53,7 @@ bye
 Here are the tasks in your list:
 1.[T][ ] borrow book
 Oops, a todo needs a description. Try `todo something to do`.
-Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+Oops, I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, find, or bye.
 Got it. I've added this task:
 Now you have 1 tasks in the list.
 1.[T][ ] borrow book
@@ -250,4 +250,40 @@ Now you have 4 tasks in the list.
 2.[D][X] return book (by: Jun 06 2019)
 3.[T][ ] join sports club
 4.[T][ ] borrow book
+```
+
+## Test case: find tasks by keyword
+
+### Aim
+
+Verify that find returns matching task descriptions case-insensitively, reports no matches, and rejects a missing keyword.
+
+### Inputs
+
+```text
+delete 1
+delete 1
+delete 1
+delete 1
+todo read book
+deadline return book /by 2019-06-06
+todo attend class
+find BOOK
+find spaceship
+find
+bye
+```
+
+### Expected output
+
+```text
+Got it. I've added this task:
+Got it. I've added this deadline:
+Got it. I've added this task:
+Here are the matching tasks in your list:
+1.[T][ ] read book
+2.[D][ ] return book (by: Jun 06 2019)
+Here are the matching tasks in your list:
+No matching tasks found.
+Oops, find needs a keyword. Try `find book`.
 ```
