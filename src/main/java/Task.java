@@ -5,8 +5,8 @@ public class Task {
     /** The text describing the task. */
     protected String description;
 
-    /** Whether the task has been completed. */
-    protected boolean isDone;
+    /** The completion status of the task. */
+    protected TaskStatus status;
 
     /**
      * Creates a new incomplete task.
@@ -15,7 +15,7 @@ public class Task {
      */
     public Task(String description) {
         this.description = description;
-        this.isDone = false;
+        this.status = TaskStatus.NOT_DONE;
     }
 
     /**
@@ -42,17 +42,17 @@ public class Task {
      * @return {@code "X"} for a completed task, or a space otherwise
      */
     public String getStatusIcon() {
-        return isDone ? "X" : " ";
+        return status == TaskStatus.DONE ? "X" : " ";
     }
 
     /** Marks this task as completed. */
     public void markAsDone() {
-        isDone = true;
+        status = TaskStatus.DONE;
     }
 
     /** Marks this task as incomplete. */
     public void markAsNotDone() {
-        isDone = false;
+        status = TaskStatus.NOT_DONE;
     }
 
     /**
@@ -61,7 +61,7 @@ public class Task {
      * @return {@code "[X]"} for a completed task, or {@code "[ ]"} otherwise
      */
     public String isDoneSymbol() {
-        return isDone ? "[X]" : "[ ]";
+        return status == TaskStatus.DONE ? "[X]" : "[ ]";
     }
 
     /**

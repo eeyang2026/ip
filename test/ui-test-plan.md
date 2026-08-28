@@ -2,7 +2,7 @@
 
 The test runner executes one fresh Waffles session for each test case. Expected-output blocks list complete output lines that must appear in order; the startup banner and divider-only lines are intentionally omitted.
 
-- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/Todo.java src/main/java/Waffles.java`
+- Compile command: `javac -d _temp/test-ui-classes src/main/java/Deadline.java src/main/java/Event.java src/main/java/Task.java src/main/java/TaskStatus.java src/main/java/Todo.java src/main/java/Waffles.java`
 - Run command: `java -cp _temp/test-ui-classes Waffles`
 
 ## Test case: add and list a todo
