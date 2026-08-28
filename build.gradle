@@ -37,7 +37,7 @@ test {
 }
 
 application {
-    mainClass = 'seedu.duke.Duke'
+    mainClass = 'waffles.Waffles'
 }
 
 jar {
@@ -53,4 +53,5 @@ shadowJar {
 
 run {
     standardInput = System.in
+    systemProperty 'waffles.data.file', '_temp/ui-test-data/waffles.txt'
 }
