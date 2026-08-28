@@ -1,5 +1,6 @@
 package waffles;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -70,6 +71,24 @@ public class Ui {
         System.out.println("Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println((i + 1) + "." + tasks.getTask(i));
+        }
+        showDivider();
+    }
+
+    /**
+     * Displays the tasks returned by a keyword search.
+     *
+     * @param matchingTasks the tasks whose descriptions matched the keyword
+     */
+    public void showMatchingTasks(List<Task> matchingTasks) {
+        showDivider();
+        System.out.println("Here are the matching tasks in your list:");
+        if (matchingTasks.isEmpty()) {
+            System.out.println("No matching tasks found.");
+        } else {
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println((i + 1) + "." + matchingTasks.get(i));
+            }
         }
         showDivider();
     }

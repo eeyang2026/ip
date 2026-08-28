@@ -30,6 +30,30 @@ public class Parser {
     }
 
     /**
+     * Determines whether a command searches for matching tasks.
+     *
+     * @param command the command entered by the user
+     * @return whether the command starts with {@code find}
+     */
+    public boolean isFindCommand(String command) {
+        return command.equals("find") || command.startsWith("find ");
+    }
+
+    /**
+     * Parses the keyword from a find command.
+     *
+     * @param command the find command entered by the user
+     * @return the keyword to search for
+     */
+    public String parseFindKeyword(String command) {
+        String keyword = command.substring("find".length()).trim();
+        if (keyword.isEmpty()) {
+            throw new IllegalArgumentException("find needs a keyword. Try `find book`.");
+        }
+        return keyword;
+    }
+
+    /**
      * Determines whether a command creates a supported task.
      *
      * @param command the command entered by the user
@@ -66,7 +90,7 @@ public class Parser {
         }
 
         throw new IllegalArgumentException(
-                "I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+                "I don't recognise that command. Try todo, deadline, event, list, mark, unmark, delete, find, or bye.");
     }
 
     /**

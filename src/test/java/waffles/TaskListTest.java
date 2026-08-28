@@ -40,4 +40,16 @@ class TaskListTest {
     void emptyConstructor_createsEmptyList() {
         assertEquals(0, new TaskList().size());
     }
+
+    /** Verifies find matches descriptions case-insensitively and keeps list order. */
+    @Test
+    void findTasks_caseInsensitiveKeyword_returnsMatchingTasksInOrder() {
+        Task first = new Todo("read book");
+        Task second = new Todo("book a room");
+        Task third = new Todo("clean desk");
+        TaskList taskList = new TaskList(List.of(first, second, third));
+
+        assertEquals(List.of(first, second), taskList.findTasks("BOOK"));
+        assertEquals(List.of(), taskList.findTasks("spaceship"));
+    }
 }
