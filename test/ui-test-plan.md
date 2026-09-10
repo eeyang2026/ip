@@ -3,7 +3,7 @@
 The test runner starts one fresh Waffles process for each test case. The cases use one shared test data file so the second case verifies loading from the previous process; each later case removes the tasks left by the preceding case before testing its own behavior. Expected-output blocks list complete output lines that must appear in order; the startup banner and divider-only lines are intentionally omitted.
 
 - Compile command: `gradlew.bat classes --console=plain`
-- Run command: `gradlew.bat run --console=plain`
+- Run command: `gradlew.bat run --args="--cli" --console=plain`
 
 ## Test case: add and list a todo
 
@@ -287,3 +287,9 @@ Here are the matching tasks in your list:
 No matching tasks found.
 Oops, find needs a keyword. Try `find book`.
 ```
+
+## GUI smoke test (manual)
+
+Run `gradlew.bat run --console=plain`, enter `todo try the GUI`, and verify
+that the user message and Waffles response appear in the scrollable window.
+Also verify that pressing Enter and clicking Send both submit commands.

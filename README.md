@@ -48,3 +48,10 @@ gradlew.bat checkstyleMain checkstyleTest
 The Checkstyle configuration in `config/checkstyle` follows the SE-EDU Java
 intermediate coding standard. Checkstyle reports violations without changing
 source files, so they can be fixed manually in the relevant class.
+
+The normal `gradlew.bat run` command starts the JavaFX GUI. The command-line
+UI used by the regression plan can be started with:
+
+```text
+gradlew.bat run --args="--cli"
+```
