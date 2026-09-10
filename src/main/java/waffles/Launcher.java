@@ -10,7 +10,7 @@ import javafx.application.Application;
  */
 public class Launcher {
     /** Starts the Waffles JavaFX application. */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         if (args.length == 1 && args[0].equals("--cli")) {
             new Waffles().run();
         } else {
