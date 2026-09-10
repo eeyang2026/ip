@@ -1,5 +1,6 @@
 package waffles;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Scanner;
 
@@ -8,14 +9,27 @@ import java.util.Scanner;
  */
 public class Ui {
     /** The divider used to separate chatbot messages. */
-    private static final String SEPARATOR = "____________________________________________________________";
+    static final String SEPARATOR = "____________________________________________________________";
 
     /** Reads commands entered through standard input. */
     private final Scanner scanner;
 
+    /** Receives messages displayed by this user interface. */
+    private final PrintStream output;
+
     /** Creates a user interface connected to standard input. */
     public Ui() {
+        this(System.out);
+    }
+
+    /**
+     * Creates a user interface that writes to the specified output stream.
+     *
+     * @param output the stream to receive chatbot messages
+     */
+    public Ui(PrintStream output) {
         scanner = new Scanner(System.in);
+        this.output = output;
     }
 
     /** Displays the chatbot's welcome message. */
@@ -27,9 +41,9 @@ public class Ui {
                 + "    \\_/\\_/   /_/   \\_\\ |_|   |_|   |_____||_____||____/";
 
         showDivider();
-        System.out.println(banner);
-        System.out.println("Hello! I'm Waffles.");
-        System.out.println("What can I do for you?");
+        output.println(banner);
+        output.println("Hello! I'm Waffles.");
+        output.println("What can I do for you?");
         showDivider();
     }
 
@@ -53,12 +67,12 @@ public class Ui {
 
     /** Displays the standard divider. */
     public void showDivider() {
-        System.out.println(SEPARATOR);
+        output.println(SEPARATOR);
     }
 
     /** Displays the goodbye message. */
     public void showGoodbye() {
-        System.out.println("Until next time, Waffleeeeeeeees out");
+        output.println("Until next time, Waffleeeeeeeees out");
     }
 
     /**
@@ -68,9 +82,9 @@ public class Ui {
      */
     public void showTaskList(TaskList tasks) {
         showDivider();
-        System.out.println("Here are the tasks in your list:");
+        output.println("Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.getTask(i));
+            output.println((i + 1) + "." + tasks.getTask(i));
         }
         showDivider();
     }
@@ -82,12 +96,12 @@ public class Ui {
      */
     public void showMatchingTasks(List<Task> matchingTasks) {
         showDivider();
-        System.out.println("Here are the matching tasks in your list:");
+        output.println("Here are the matching tasks in your list:");
         if (matchingTasks.isEmpty()) {
-            System.out.println("No matching tasks found.");
+            output.println("No matching tasks found.");
         } else {
             for (int i = 0; i < matchingTasks.size(); i++) {
-                System.out.println((i + 1) + "." + matchingTasks.get(i));
+                output.println((i + 1) + "." + matchingTasks.get(i));
             }
         }
         showDivider();
@@ -100,7 +114,7 @@ public class Ui {
      */
     public void showError(String message) {
         showDivider();
-        System.out.println("Oops, " + message);
+        output.println("Oops, " + message);
         showDivider();
     }
 
@@ -115,9 +129,9 @@ public class Ui {
         String taskType = task instanceof Event
                 ? "event"
                 : task instanceof Deadline ? "deadline" : "task";
-        System.out.println("Got it. I've added this " + taskType + ":");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+        output.println("Got it. I've added this " + taskType + ":");
+        output.println("  " + task);
+        output.println("Now you have " + taskCount + " tasks in the list.");
         showDivider();
     }
 
@@ -130,11 +144,11 @@ public class Ui {
     public void showMarkResult(Task task, boolean isDone) {
         showDivider();
         if (isDone) {
-            System.out.println("Nice! I've marked this task as done:");
+            output.println("Nice! I've marked this task as done:");
         } else {
-            System.out.println("OK, I've marked this task as not done yet:");
+            output.println("OK, I've marked this task as not done yet:");
         }
-        System.out.println("  " + task);
+        output.println("  " + task);
         showDivider();
     }
 
@@ -146,9 +160,9 @@ public class Ui {
      */
     public void showTaskDeleted(Task task, int taskCount) {
         showDivider();
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+        output.println("Noted. I've removed this task:");
+        output.println("  " + task);
+        output.println("Now you have " + taskCount + " tasks in the list.");
         showDivider();
     }
 }

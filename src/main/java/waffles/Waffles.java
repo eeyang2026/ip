@@ -1,5 +1,9 @@
 package waffles;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * The entry point and coordinator for the Waffles chatbot.
  */
@@ -29,38 +33,60 @@ public class Waffles {
         ui.showWelcome();
         while (ui.hasNextCommand()) {
             String command = ui.readCommand();
-            try {
-                if (command.equals("bye")) {
-                    ui.showGoodbye();
-                    break;
-                } else if (command.equals("list")) {
-                    ui.showTaskList(tasks);
-                } else if (parser.isMarkCommand(command)) {
-                    handleMarkCommand(command);
-                } else if (parser.isDeleteCommand(command)) {
-                    handleDeleteCommand(command);
-                } else if (parser.isFindCommand(command)) {
-                    String keyword = parser.parseFindKeyword(command);
-                    ui.showMatchingTasks(tasks.findTasks(keyword));
-                } else if (parser.isTaskCommand(command)) {
-                    Task newTask = parser.parseTask(command);
-                    tasks.addTask(newTask);
-                    storage.saveTasks(tasks.asList());
-                    ui.showTaskAdded(newTask, tasks.size());
-                } else {
-                    throw new IllegalArgumentException(
-                            "I don't recognise that command. Try todo, deadline, event, list, "
-                                    + "mark, unmark, delete, find, or bye.");
-                }
-            } catch (IllegalArgumentException exception) {
-                ui.showError(exception.getMessage());
+            if (!handleCommand(command, ui)) {
+                break;
             }
         }
         ui.showDivider();
     }
 
+    /**
+     * Processes one chatbot command and returns the text response for a GUI.
+     *
+     * @param command the command entered by the user
+     * @return the response without the CLI divider lines
+     */
+    public String getResponse(String command) {
+        ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
+        try (PrintStream responseStream = new PrintStream(responseBytes, true, StandardCharsets.UTF_8)) {
+            handleCommand(command.trim(), new Ui(responseStream));
+        }
+        return responseBytes.toString(StandardCharsets.UTF_8).replace(Ui.SEPARATOR, "").trim();
+    }
+
+    /** Processes one command and reports whether the chatbot should continue. */
+    private boolean handleCommand(String command, Ui output) {
+        try {
+            if (command.equals("bye")) {
+                output.showGoodbye();
+                return false;
+            } else if (command.equals("list")) {
+                output.showTaskList(tasks);
+            } else if (parser.isMarkCommand(command)) {
+                handleMarkCommand(command, output);
+            } else if (parser.isDeleteCommand(command)) {
+                handleDeleteCommand(command, output);
+            } else if (parser.isFindCommand(command)) {
+                String keyword = parser.parseFindKeyword(command);
+                output.showMatchingTasks(tasks.findTasks(keyword));
+            } else if (parser.isTaskCommand(command)) {
+                Task newTask = parser.parseTask(command);
+                tasks.addTask(newTask);
+                storage.saveTasks(tasks.asList());
+                output.showTaskAdded(newTask, tasks.size());
+            } else {
+                throw new IllegalArgumentException(
+                        "I don't recognise that command. Try todo, deadline, event, list, "
+                                + "mark, unmark, delete, find, or bye.");
+            }
+        } catch (IllegalArgumentException exception) {
+            output.showError(exception.getMessage());
+        }
+        return true;
+    }
+
     /** Handles a mark or unmark command after parsing its task number. */
-    private void handleMarkCommand(String command) {
+    private void handleMarkCommand(String command, Ui output) {
         int taskNumber = parser.parseTaskNumber(command);
         int taskIndex = taskNumber - 1;
         validateTaskIndex(taskIndex);
@@ -73,18 +99,18 @@ public class Waffles {
             task.markAsNotDone();
         }
         storage.saveTasks(tasks.asList());
-        ui.showMarkResult(task, shouldMarkAsDone);
+        output.showMarkResult(task, shouldMarkAsDone);
     }
 
     /** Handles a delete command after parsing its task number. */
-    private void handleDeleteCommand(String command) {
+    private void handleDeleteCommand(String command, Ui output) {
         int taskNumber = parser.parseTaskNumber(command);
         int taskIndex = taskNumber - 1;
         validateTaskIndex(taskIndex);
 
         Task removedTask = tasks.removeTask(taskIndex);
         storage.saveTasks(tasks.asList());
-        ui.showTaskDeleted(removedTask, tasks.size());
+        output.showTaskDeleted(removedTask, tasks.size());
     }
 
     /**
