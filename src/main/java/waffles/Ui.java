@@ -129,6 +129,14 @@ public class Ui {
         showDivider();
     }
 
+    /** Displays a warning when a new scheduled task overlaps existing tasks. */
+    public void showSchedulingWarning(List<Task> conflicts) {
+        showDivider();
+        output.println("Warning: this task clashes with existing scheduled tasks:");
+        conflicts.forEach(conflict -> output.println("  " + conflict));
+        showDivider();
+    }
+
     /** Displays tasks with their one-based positions. */
     private void showNumberedTasks(List<Task> tasks) {
         for (int i = 0; i < tasks.size(); i++) {

@@ -3,6 +3,7 @@ package waffles;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * The entry point and coordinator for the Waffles chatbot.
@@ -72,6 +73,10 @@ public class Waffles {
             } else if (parser.isTaskCommand(command)) {
                 Task newTask = parser.parseTask(command);
                 assert newTask != null : "Parser must return a task for a recognized task command";
+                List<Task> conflicts = tasks.findSchedulingConflicts(newTask);
+                if (!conflicts.isEmpty()) {
+                    output.showSchedulingWarning(conflicts);
+                }
                 tasks.addTask(newTask);
                 storage.saveTasks(tasks.asList());
                 output.showTaskAdded(newTask, tasks.size());
