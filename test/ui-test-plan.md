@@ -293,3 +293,32 @@ Oops, find needs a keyword. Try `find book`.
 Run `gradlew.bat run --console=plain`, enter `todo try the GUI`, and verify
 that the user message and Waffles response appear in the scrollable window.
 Also verify that pressing Enter and clicking Send both submit commands.
+
+## Test case: warn about scheduling clashes
+
+### Aim
+
+Verify that an overlapping event produces a warning while both scheduled tasks remain in the list.
+
+### Inputs
+
+```text
+delete 1
+delete 1
+delete 1
+event project meeting /from 2019-08-06 /to 2019-08-07
+event overlapping meeting /from 2019-08-07 /to 2019-08-08
+list
+bye
+```
+
+### Expected output
+
+```text
+Warning: this task clashes with existing scheduled tasks:
+  [E][ ] project meeting (from: Aug 06 2019 | to: Aug 07 2019)
+Got it. I've added this event:
+Now you have 2 tasks in the list.
+1.[E][ ] project meeting (from: Aug 06 2019 | to: Aug 07 2019)
+2.[E][ ] overlapping meeting (from: Aug 07 2019 | to: Aug 08 2019)
+```

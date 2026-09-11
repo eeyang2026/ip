@@ -1,5 +1,6 @@
 package waffles;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,5 +86,47 @@ public class TaskList {
         return tasks.stream()
                 .filter(task -> task.getDescription().toLowerCase(Locale.ROOT).contains(normalizedKeyword))
                 .toList();
+    }
+
+    /**
+     * Finds scheduled tasks that overlap with the supplied candidate.
+     *
+     * <p>Events occupy an inclusive date range. Deadlines occupy their due date.
+     * Todo tasks have no scheduled date and therefore cannot clash.</p>
+     *
+     * @param candidate the task that is about to be added
+     * @return scheduled tasks that overlap with the candidate
+     */
+    public List<Task> findSchedulingConflicts(Task candidate) {
+        return tasks.stream()
+                .filter(existingTask -> isSchedulingConflict(candidate, existingTask))
+                .toList();
+    }
+
+    /** Determines whether two scheduled tasks occupy at least one common date. */
+    private boolean isSchedulingConflict(Task first, Task second) {
+        if (first instanceof Event firstEvent && second instanceof Event secondEvent) {
+            return rangesOverlap(firstEvent, secondEvent);
+        }
+        if (first instanceof Event event && second instanceof Deadline deadline) {
+            return isWithinEvent(deadline.getBy(), event);
+        }
+        if (first instanceof Deadline deadline && second instanceof Event event) {
+            return isWithinEvent(deadline.getBy(), event);
+        }
+        return first instanceof Deadline firstDeadline
+                && second instanceof Deadline secondDeadline
+                && firstDeadline.getBy().equals(secondDeadline.getBy());
+    }
+
+    /** Returns whether two inclusive event ranges overlap. */
+    private boolean rangesOverlap(Event first, Event second) {
+        return !first.getTo().isBefore(second.getFrom())
+                && !second.getTo().isBefore(first.getFrom());
+    }
+
+    /** Returns whether a date falls within an inclusive event range. */
+    private boolean isWithinEvent(LocalDate date, Event event) {
+        return !date.isBefore(event.getFrom()) && !date.isAfter(event.getTo());
     }
 }
