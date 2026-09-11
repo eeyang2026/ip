@@ -71,6 +71,7 @@ public class Waffles {
                 output.showMatchingTasks(tasks.findTasks(keyword));
             } else if (parser.isTaskCommand(command)) {
                 Task newTask = parser.parseTask(command);
+                assert newTask != null : "Parser must return a task for a recognized task command";
                 tasks.addTask(newTask);
                 storage.saveTasks(tasks.asList());
                 output.showTaskAdded(newTask, tasks.size());
@@ -123,6 +124,8 @@ public class Waffles {
             throw new IllegalArgumentException(
                     "that task number is out of range. Pick a number from 1 to " + tasks.size() + ".");
         }
+        assert taskIndex >= 0 && taskIndex < tasks.size()
+                : "A validated task index must refer to an existing task";
     }
 
     /** Starts Waffles. */
