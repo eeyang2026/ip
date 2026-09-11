@@ -83,9 +83,7 @@ public class Ui {
     public void showTaskList(TaskList tasks) {
         showDivider();
         output.println("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            output.println((i + 1) + "." + tasks.getTask(i));
-        }
+        showNumberedTasks(tasks.asList());
         showDivider();
     }
 
@@ -100,9 +98,7 @@ public class Ui {
         if (matchingTasks.isEmpty()) {
             output.println("No matching tasks found.");
         } else {
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                output.println((i + 1) + "." + matchingTasks.get(i));
-            }
+            showNumberedTasks(matchingTasks);
         }
         showDivider();
     }
@@ -126,13 +122,29 @@ public class Ui {
      */
     public void showTaskAdded(Task task, int taskCount) {
         showDivider();
-        String taskType = task instanceof Event
-                ? "event"
-                : task instanceof Deadline ? "deadline" : "task";
+        String taskType = getTaskType(task);
         output.println("Got it. I've added this " + taskType + ":");
         output.println("  " + task);
         output.println("Now you have " + taskCount + " tasks in the list.");
         showDivider();
+    }
+
+    /** Displays tasks with their one-based positions. */
+    private void showNumberedTasks(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            output.println((i + 1) + "." + tasks.get(i));
+        }
+    }
+
+    /** Returns the user-facing name for a task subtype. */
+    private String getTaskType(Task task) {
+        if (task instanceof Event) {
+            return "event";
+        }
+        if (task instanceof Deadline) {
+            return "deadline";
+        }
+        return "task";
     }
 
     /**
