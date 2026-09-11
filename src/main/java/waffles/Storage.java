@@ -3,6 +3,7 @@ package waffles;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
@@ -57,14 +59,11 @@ public class Storage {
         }
 
         try (BufferedReader reader = Files.newBufferedReader(dataFile, StandardCharsets.UTF_8)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Task task = parseTask(line);
-                if (task != null) {
-                    tasks.add(task);
-                }
-            }
-        } catch (IOException exception) {
+            reader.lines()
+                    .map(this::parseTask)
+                    .filter(Objects::nonNull)
+                    .forEach(tasks::add);
+        } catch (IOException | UncheckedIOException exception) {
             System.err.println("Warning: I couldn't load the saved tasks. Starting with an empty list.");
         }
         return tasks;
